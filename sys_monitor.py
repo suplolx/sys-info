@@ -17,13 +17,23 @@ X.append(1)
 
 app = dash.Dash(__name__)
 
+cells = {'values': [[i.name() for i in psutil.process_iter()], [f"{round(i.memory_info().vms / 2**20, 1)} mB" for i in psutil.process_iter()]]}
+
+trace = go.Table(
+    header=dict(values=['Name', 'Memory usage', ]),
+    cells=cells
+)
+
+data = [trace]
+
 app.layout = html.Div(
-    [
+    [   
         dcc.Graph(id='live-graph', animate=True),
         dcc.Interval(
             id='graph-update',
             interval=1000
-        )
+        ),
+        dcc.Graph(id="data-table", figure=go.Figure(data=[trace])),
     ]
 )
 
@@ -33,7 +43,7 @@ def update_graph():
 
     cpu_percent = int(psutil.cpu_percent())
     mem_percent = int(psutil.virtual_memory().percent)
-    disk_percent = int(psutil.disk_usage("C:\\").percent)
+    disk_percent = int(psutil.disk_usage("E:\\").percent)
     
     cpu_usage.append(cpu_percent)
     mem_usage.append(mem_percent)
